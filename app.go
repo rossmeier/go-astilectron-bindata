@@ -1,52 +1,30 @@
 package main
 
 import (
-	"os"
-	"log"
 	"fmt"
-	"net/http"
 	"github.com/asticode/go-astilectron"
 	"io"
-	"strings"
+	"log"
+	"net/http"
+	"os"
 )
 
 /*func Disembed(src string) ([]byte, error) {
-	if src == "a" {
+	if src == "astilectron.zip" {
 		return nil, nil
-	} else if src == "e" {
+	} else if src == "electron.zip" {
 		return nil, nil
 	} else {
 		return nil, errors.New("Wrong argument!")
 	}
 }*/
 
-func getElectronPath(os, arch string) string {
-	// Get OS name
-	var o string
-	switch strings.ToLower(os) {
-	case "darwin":
-		o = "darwin"
-	case "linux":
-		o = "linux"
-	case "windows":
-		o = "win32"
-	}
 
-	// Get arch name
-	var a = "ia32"
-	if strings.ToLower(arch) == "amd64" || o == "darwin" {
-		a = "x64"
-	}
-
-	// Set url
-	return fmt.Sprintf("https://github.com/electron/electron/releases/download/v%s/electron-v%s-%s-%s.zip", astilectron.VersionElectron, astilectron.VersionElectron, o, a)
-}
-
-type W struct{
+type W struct {
 	io.Writer
 }
 
-func(w *W) Write(p []byte) (n int, err error) {
+func (w *W) Write(p []byte) (n int, err error) {
 	for _, b := range p {
 		_, err = fmt.Fprintf(w.Writer, "\\x%02x", b)
 	}
@@ -55,7 +33,7 @@ func(w *W) Write(p []byte) (n int, err error) {
 }
 
 func main() {
-	for _, o := range []string{"linux", "darwin", "windows"} {
+	for _, o := range astilectron.ValidOSes() {
 		for _, a := range []string{"amd64", "386"} {
 			if o == "darwin" && a == "386" {
 				continue
@@ -73,9 +51,9 @@ package main
 import "errors"
 `)
 			file.WriteString(`func Disembed(src string) ([]byte, error) {
-	if src == "a" {
+	if src == "astilectron.zip" {
 		return []byte("`)
-			resp, err := http.Get(fmt.Sprintf("https://github.com/asticode/astilectron/archive/v%s.zip", astilectron.VersionAstilectron))
+			resp, err := http.Get(astilectron.AstilectronDownloadSrc())
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -84,9 +62,9 @@ import "errors"
 				log.Fatal(err)
 			}
 			file.WriteString(`"), nil
-	} else if src == "e" {
+	} else if src == "electron.zip" {
 		return []byte("`)
-			resp, err = http.Get(getElectronPath(o, a))
+			resp, err = http.Get(astilectron.ElectronDownloadSrc(o, a))
 			if err != nil {
 				log.Fatal(err)
 			}
