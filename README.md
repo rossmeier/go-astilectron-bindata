@@ -9,3 +9,11 @@ binary dependencies and embeds them into the source code.
    *or* simply run `go-astilectron-bindata`
  * add `"github.com/veecue/go-astilectron-bindata"` to your includes
  * add this code before `a.Start()`: `a.SetProvisioner(astilectron_bindata.NewProvisioner(Disembed))`
+
+## Parameters
+`go-astilectron-bindata --help`:
+```
+Usage of go-astilectron-bindata:
+  -c, --current-only
+    	Only download electron for the current os
+```
